@@ -1,0 +1,32 @@
+# Delphi compiled units and binaries
+*.exe
+*.dll
+*.dcu
+*.dcp
+*.bpl
+*.dres
+*.res
+*.local
+*.identcache
+*.tvsconfig
+*.dsk
+*.bak
+*.~*
+
+# Delphi history & recovery
+__history/
+__recovery/
+
+# Access locking files
+*.ldb
+
+# Windows junk
+Thumbs.db
+Desktop.ini
+
+# Temp files
+*.log
+*.tmp
+*.lock
+
+
