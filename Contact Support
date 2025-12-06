@@ -1,0 +1,130 @@
+unit Unit2_u;
+
+interface
+
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, ExtCtrls, pngimage, Buttons,cls_ratings_u;
+
+type
+  TForm2 = class(TForm)
+    pnl_info: TPanel;
+    mem_info: TMemo;
+    btn_contact: TButton;
+    img_home: TImage;
+    img_background: TImage;
+    btn_report: TButton;
+    img_exit: TImage;
+    procedure FormCreate(Sender: TObject);
+    procedure BitBtn1Click(Sender: TObject);
+    procedure img_homeClick(Sender: TObject);
+    procedure btn_contactClick(Sender: TObject);
+    procedure btn_reportClick(Sender: TObject);
+    procedure img_exitClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form2: TForm2;
+
+implementation
+uses
+unit1_u,Home_screen;
+
+{$R *.dfm}
+
+procedure TForm2.BitBtn1Click(Sender: TObject);
+begin
+application.Terminate;
+end;
+
+procedure TForm2.btn_contactClick(Sender: TObject);
+begin
+mem_info.Clear;
+mem_info.Lines.Add('Contact Support Information');
+mem_info.Lines.Add('------------------------------');
+mem_info.Lines.Add('Customer Support Hotline: 0800 123 456');
+mem_info.Lines.Add('International Support: +27 11 555 7890');
+mem_info.Lines.Add(#10 +
+                   'Email Support');
+mem_info.Lines.Add('General Queries: support@horizonintl.com');
+mem_info.Lines.Add('Technical Help: tech@horizonintl.com');
+mem_info.Lines.Add(#10 +
+                   'Website and Online Helpdesk');
+mem_info.Lines.Add('Visit: www.horizonintl.com/support');
+mem_info.Lines.Add('Live Chat: Available 24/7 on our website');
+mem_info.Lines.Add(#10 +
+                   'Office Address');
+mem_info.Lines.Add('Horizon International Airport HQ');
+mem_info.Lines.Add('123 Aviation Way, Johannesburg, South Africa');
+end;
+
+procedure TForm2.btn_reportClick(Sender: TObject);
+
+var
+tf : textfile ;
+email,report : string;
+begin
+mem_info.Clear;
+mem_info.Lines.Add('Problem Reported Successfully');
+mem_info.Lines.Add('--------------------------------');
+mem_info.Lines.Add('Thank you for reaching out to us.');
+mem_info.Lines.Add('Your issue has been logged and sent to our support team.');
+mem_info.Lines.Add(#10 +
+                   'What happens next?');
+mem_info.Lines.Add('- You will receive a confirmation email shortly.');
+mem_info.Lines.Add('- A support agent will contact you within 24 hours.');
+mem_info.Lines.Add(#10 +
+                   'Tip: Check your email (including spam/junk folder) for a ticket ID.');
+mem_info.Lines.Add(#10 +
+                   'Need urgent help? Call 0800 123 456 for immediate support.');
+
+
+
+//get the email
+email := InputBox('Contact Support','Please enter your email','@gmail.com');
+report := Inputbox('Contact Support','Please report a problem','');
+
+//tf
+
+  begin
+    AssignFile(tf,'Feedback.txt');
+      if FileExists('Feedback.txt') <> true then
+        Rewrite(tf)
+      else
+        append(tf);
+
+      writeln(tf, email + '&' + report + '&' + DateToStr(Date) + '@' + TimeToStr(Time));
+      closefile(tf);
+  end;
+
+end;
+
+procedure TForm2.FormCreate(Sender: TObject);
+begin
+mem_info.Clear;
+mem_info.Lines.Add('Welcome to Horizon Contacts supoort, How can we assist you?')
+
+end;
+
+procedure TForm2.img_homeClick(Sender: TObject);
+begin
+//go back to the home page
+form1.show;
+//hides my current form
+form2.Hide;
+end;
+
+procedure TForm2.img_exitClick(Sender: TObject);
+begin
+//ask to rate the program
+//there is no username yet so username = '#'
+TRating.RateAndExit('#');
+end;
+
+end.
+
