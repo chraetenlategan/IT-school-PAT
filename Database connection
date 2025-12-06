@@ -1,0 +1,33 @@
+unit unit_database;
+
+interface
+
+uses
+  SysUtils, Classes, DB, ADODB;
+
+type
+  Tdata_module = class(TDataModule)
+    Con_atc_db: TADOConnection;
+    tbl_act: TADOTable;
+    DataSource1: TDataSource;
+    tbl_flights: TADOTable;
+    DataSource2: TDataSource;
+    tbl_runway: TADOTable;
+    DataSource3: TDataSource;
+    ado_table: TADOQuery;
+    DataSource4: TDataSource;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  data_module: Tdata_module;
+
+implementation
+
+{$R *.dfm}
+
+end.
+
