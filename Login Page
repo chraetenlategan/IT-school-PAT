@@ -1,0 +1,481 @@
+unit Unit3_u;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ExtCtrls, Buttons, StdCtrls, jpeg, pngimage, unit_database, ComCtrls,
+  Grids, DBGrids,cls_ratings_u,Unit_admin_u;
+
+type
+  TForm3 = class(TForm)
+    pnl_login: TPanel;
+    lbl_Welcome: TLabel;
+    btn_signup: TButton;
+    btn_login: TButton;
+    edt_username: TEdit;
+    edt_password: TEdit;
+    lbl_pasword: TLabel;
+    lbl_username: TLabel;
+    btn_save: TButton;
+    redinfo: TRichEdit;
+    IMG_open: TImage;
+    img_closed: TImage;
+    img_background: TImage;
+    img_home: TImage;
+    img_exit: TImage;
+    img_login: TImage;
+    img_signup: TImage;
+    procedure btn_exitClick(Sender: TObject);
+    procedure btn_saveClick(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+    procedure btn_loginClick(Sender: TObject);
+    procedure btn_signupClick(Sender: TObject);
+    //checks if information entered is valid
+    function BValid(username, password: string): Boolean;
+    procedure img_closedClick(Sender: TObject);
+    procedure Image1Click(Sender: TObject);
+    procedure img_homeClick(Sender: TObject);
+    procedure img_exitClick(Sender: TObject);
+    procedure edt_usernameClick(Sender: TObject);
+    procedure edt_passwordClick(Sender: TObject);
+    procedure img_signupClick(Sender: TObject);
+    procedure img_loginClick(Sender: TObject);
+  private
+    { Private declarations }
+
+  var
+  //counter variable for password entered
+  icount_password_entered : integer;
+  //Boolean that checks if Login Is Sucsesful
+  BLogin,Bpassword,busername : boolean;
+
+  //sign up variables
+  fname,fid,fpassword,fusername,fstar : string;
+
+
+  public
+    { Public declarations }
+  end;
+
+var
+Form3: TForm3;
+
+
+
+implementation
+uses
+Home_screen,unit5_u;
+
+{$R *.dfm}
+
+procedure TForm3.btn_exitClick(Sender: TObject);
+begin
+//close the program
+
+end;
+
+procedure TForm3.btn_loginClick(Sender: TObject);
+var
+//basic name and password
+sname_entered, spassword_enetered : string;
+//textfile variables
+tf,tfile,tfa : textfile;
+b_admin : boolean;
+begin
+// Gets the users input
+sname_entered := edt_username.Text;
+spassword_enetered := edt_password.text;
+b_admin := false;
+//check IF name and password is correct
+with data_module do
+  begin
+    tbl_act.open;
+    tbl_act.First;
+      while (not tbl_act.eof) and ( blogin = false) do
+        begin
+          if (sname_entered = tbl_act['Username'])
+                          and
+          (spassword_enetered = tbl_act['Password'])
+
+          then
+          begin
+          BLogin := True;
+          showmessage('Login sucsesful');
+
+          if tbl_act['role']= 'admin' then
+          b_admin := true;
+          end
+            else
+              tbl_act.Next;
+
+        end;
+  end;
+
+
+
+//count failed attemps
+if BLogin = False then
+begin
+Inc(icount_password_entered);
+//reset the values entered
+edt_username.Text := '';
+edt_password.Text := '';
+edt_username.Color := clred;
+//makes the editbox red
+//edt_username.Color := clred;
+edt_username.Color := clred;
+
+//makes text readable with red backfround
+edt_username.Font.Color := clwhite;
+edt_password.Font.Color := clwhite;
+//promotes the sign up  button
+btn_signup.Font.Style := [fsbold];
+//closes the program when password entered wrong 3 times
+if icount_password_entered = 3 then
+Application.Terminate;
+//shows a message to the user
+ShowMessage('Incorrect password enterd you have '+inttostr(3-icount_password_entered)+' Attemps left');
+end;
+
+
+//saves Login Details in tf
+if blogin = true then
+  begin
+    AssignFile(tf,'Login.txt');
+      if FileExists('Login.txt') <> true then
+        Rewrite(tf)
+      else
+        append(tf);
+
+      writeln(tf,'Login^'+sname_entered + '*' + Datetostr(Date)+ ',' +  timetostr(Time) );
+      closefile(tf);
+  end;
+
+//just for admin security there is another tf for failed logins
+
+if blogin = false then
+  begin
+    AssignFile(tfile,'Failed.txt');
+      if FileExists('Failed.txt') <> true then
+        Rewrite(tfile)
+      else
+        append(tfile);
+
+      writeln(tfile,sname_entered + ',' + spassword_enetered + '*' + inttostr(icount_password_entered) + ','+datetostr(date)+ '@' + timetostr(time) );
+      closefile(tfile);
+  end;
+
+//also adds into audit textfile which records all activity on program
+if blogin = false then
+  begin
+    AssignFile(tfa,'Audit.txt');
+      if FileExists('Audit.txt') <> true then
+        Rewrite(tfa)
+      else
+        append(tfa);
+
+      writeln(tfa,'Failed Login : '+sname_entered + '*'  +datetostr(date)+ '@' + timetostr(time) );
+      closefile(tfa);
+  end;
+
+//adds in audit when login sucsesfull
+if blogin = true then
+  begin
+    AssignFile(tfa,'Audit.txt');
+      if FileExists('Audit.txt') <> true then
+        Rewrite(tfa)
+      else
+        append(tfa);
+
+      writeln(tfa,'Sucsesfull Login : '+sname_entered + '*'  +datetostr(date)+ '@' + timetostr(time) );
+      closefile(tfa);
+  end;
+//takes you to the next screen
+with data_module do
+begin
+if (BLogin = true) and (B_admin = false)  then
+begin
+  form5.Show;
+  Form3.Hide;
+end
+else
+form8.show;
+form3.Hide;
+end;
+
+
+end;
+
+procedure TForm3.btn_signupClick(Sender: TObject);
+
+var
+//counter of amount of accounts
+icount_act,i,j : integer;
+bfull,ID_correct : boolean;
+username,password : string;
+ID, Fullname,sline : string;
+
+begin
+icount_act :=0;
+username := edt_username.Text;
+password := edt_password.Text;
+
+//counts amount of act
+with data_module do
+begin
+tbl_act.Open;
+tbl_act.first;
+  while not tbl_act.eof do
+  begin
+    inc(icount_act);
+    tbl_act.Next;
+  end;
+end;
+
+if icount_act >= 50 then
+begin
+  bfull := true;
+  pnl_login.Color := clred;
+  showmessage('No more air traffic controllers can be added, please contact suppport');
+  exit;
+end;
+
+ // Validate signup details with function
+  if not Bvalid(username, password) then
+    Exit;
+
+fusername := edt_username.Text;
+ fpassword := edt_password.Text;
+
+
+  ID_correct := false;
+
+  //this is a loop that loops until ID name is correct
+  while ID_correct = false do
+    begin
+      id := inputbox('ID','Please enter your ID','');
+      ID_correct := true;
+
+      if length(ID) <> 13 then
+        begin
+          showmessage('ID Number has to be 13 digits');
+          ID_correct := false;
+        end;
+
+      for i := 1 to length(id) do
+        begin
+         if not ( ID[i] IN ['0'..'9']) then
+          begin
+            showmessage('ID needs to be only numbers');
+            ID_correct := false;
+          end;
+
+        end; //for loop
+
+    end; //while loop
+
+
+    fID := ID;
+
+    fname := inputbox('Fullname','Please enter your fullname','');
+
+    btn_save.Visible := true;
+    redinfo.Visible:=true;
+    img_closed.Visible := true;
+    fstar :='';
+    for j := 1 to length(password) do
+    fstar := fstar +'*';
+
+    redinfo.Clear;
+    redinfo.Lines.Add('Name : '+ #9 + fname);
+    redinfo.Lines.Add('Username : '+ #9 + fusername);
+    redinfo.Lines.Add('ID number : '+ #9 + fID);
+    redinfo.Lines.Add('Password : '+ #9 + fstar);
+
+
+end;
+
+procedure TForm3.btn_saveClick(Sender: TObject);
+begin
+
+with data_module do
+begin
+tbl_act.Open;
+tbl_act.Append;
+
+tbl_act['Fullname'] := fname;
+tbl_act['ID_number'] := fID;
+tbl_act['Password'] := fpassword;
+tbl_act['Username'] := fusername;
+tbl_act['Date_register'] := date;
+tbl_act['rank'] := 'Junior';
+
+showmessage('Saved sucsesfully, You can sign in');
+redinfo.Clear;
+edt_username.Clear;
+edt_password.Clear;
+btn_login.Font.Style := [fsbold];
+btn_login.Font.Color := clgreen;
+btn_signup.Visible := false;
+btn_save.Visible := false;
+redinfo.Visible := false;
+btn_login.Visible := true;
+end;
+
+
+end;
+
+function TForm3.BValid(username, password: string): Boolean;
+var
+inumCount,i: Integer;
+spassword : string;
+begin
+result := false;
+inumCount := 0;
+spassword := edt_password.Text;
+
+//check if the username already exists
+with data_module do
+begin
+tbl_act.Open;
+tbl_act.First;
+  while not tbl_act.eof do
+  if edt_username.Text = tbl_act['username'] then
+    begin
+      showmessage('Username already exists');
+      edt_username.Color := clred;
+      edt_username.Font.Color := clwhite;
+      edt_username.Text := '';
+      exit;
+    end
+  else
+    tbl_act.Next;
+end;
+
+//count the amount of characters
+if length(edt_password.text) < 8  then
+begin
+  ShowMessage('Password must contain more than 8 characters');
+  edt_password.Text := '';
+  edt_password.Color := clred;
+  edt_password.Font.Color := clwhite;
+  exit;
+end;
+
+//check if it contains 2 numbers
+  for i := 1 to Length(edt_password.text) do
+    if spassword[i] in ['0'..'9'] then
+      Inc(inumCount);
+
+if inumCount < 2 then
+  begin
+    ShowMessage('Password must contain minimum 2 numbers');
+    edt_password.Text := '';
+    edt_password.Color := clred;
+    edt_password.Font.Color := clwhite;
+    exit;
+
+  end;
+
+  // if it passses all of the requirements an the code is not exit
+  Result := true;
+
+
+
+end;
+
+procedure TForm3.edt_passwordClick(Sender: TObject);
+begin
+edt_password.Text:= '';
+end;
+
+procedure TForm3.edt_usernameClick(Sender: TObject);
+begin
+edt_username.Text :='';
+end;
+
+procedure TForm3.FormActivate(Sender: TObject);
+
+begin
+//FORM on Activate
+edt_username.Text:='Username';
+edt_password.Text:='Password';
+
+//initialize
+icount_password_entered := 0;
+BLogin := False;
+
+//color reset
+edt_username.Color := clWhite;
+edt_password.Color := clWhite;
+edt_username.Font.Color := clBlack;
+edt_password.Font.Color := clBlack;
+
+//hides richedit and its buttom
+redinfo.Visible := false;
+btn_save.Visible := false;
+
+IMG_open.Visible := false;
+img_closed.Visible := false;
+
+end;
+
+
+
+
+
+
+procedure TForm3.Image1Click(Sender: TObject);
+begin
+//shows the
+    redinfo.Clear;
+    redinfo.Lines.Add('Name : '+ #9 + fname);
+    redinfo.Lines.Add('Username : '+ #9 + fusername);
+    redinfo.Lines.Add('ID number : '+ #9 + fID);
+    redinfo.Lines.Add('Password : '+ #9 + fpassword);
+    img_closed.Visible := false;
+    IMG_open.Visible := true;
+end;
+
+procedure TForm3.img_homeClick(Sender: TObject);
+begin
+//takes to the home page
+form1.show;
+//hides the current form
+form3.Hide;
+end;
+
+procedure TForm3.img_exitClick(Sender: TObject);
+begin
+// ask the user to rate the program
+//there is no user loged in yey so username = '#'
+TRating.RateAndExit('#');
+end;
+
+procedure TForm3.img_loginClick(Sender: TObject);
+begin
+btn_login.Visible := true;
+btn_signup.Visible := false;
+end;
+
+procedure TForm3.img_signupClick(Sender: TObject);
+begin
+btn_login.Visible := false ;
+btn_signup.Visible := true;
+end;
+
+procedure TForm3.img_closedClick(Sender: TObject);
+begin
+//shows the password
+    redinfo.Clear;
+    redinfo.Lines.Add('Name : '+ #9 + fname);
+    redinfo.Lines.Add('Username : '+ #9 + fusername);
+    redinfo.Lines.Add('ID number : '+ #9 + fID);
+    redinfo.Lines.Add('Password : '+ #9 + fstar);
+    img_closed.Visible := true;
+    IMG_open.Visible := false;
+end;
+
+end.
+
