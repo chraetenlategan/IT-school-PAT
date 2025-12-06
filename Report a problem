@@ -1,0 +1,126 @@
+unit Unit4_u;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ExtCtrls, pngimage, StdCtrls, ComCtrls,cls_ratings_u;
+
+type
+  TForm4 = class(TForm)
+    pnl_faq: TPanel;
+    img_home: TImage;
+    img_background: TImage;
+    redoutput: TRichEdit;
+    img_exit: TImage;
+    radio_faq: TRadioGroup;
+    procedure radio_faqClick(Sender: TObject);
+    procedure btn_exitClick(Sender: TObject);
+    procedure img_homeClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure img_exitClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form4: TForm4;
+
+implementation
+uses
+unit1_u,Home_screen;
+
+{$R *.dfm}
+
+procedure TForm4.btn_exitClick(Sender: TObject);
+begin
+//close the program
+application.Terminate;
+end;
+
+procedure TForm4.FormCreate(Sender: TObject);
+begin
+redoutput.Clear;
+redoutput.Lines.Add('Welcome to the Help Center of Horizon International');
+redoutput.Lines.Add('');
+redoutput.Lines.Add('Here you’ll find quick guides and answers to common questions about using the system.');
+redoutput.Lines.Add('If you need further assistance, please use the Contact Support page.');
+redoutput.Lines.Add('');
+redoutput.Lines.Add('Select a help topic below to get started:');
+redoutput.Lines.Add('- How to log in');
+redoutput.Lines.Add('- Resetting your password');
+redoutput.Lines.Add('- Understanding runway status');
+redoutput.Lines.Add('- Reporting a bug or issue');
+redoutput.Lines.Add('- Navigating through the app');
+end;
+
+procedure TForm4.img_homeClick(Sender: TObject);
+begin
+//takes to the home page
+form1.show;
+//hides the current form
+form4.Hide;
+end;
+
+procedure TForm4.img_exitClick(Sender: TObject);
+begin
+// ask the user to rate the program
+//there is no user loged in yey so username = '#'
+TRating.RateAndExit('#');
+end;
+
+procedure TForm4.radio_faqClick(Sender: TObject);
+var
+selected : integer;
+begin
+//chceks the itemindex and give an answer
+case radio_faq.ItemIndex of
+  0: begin
+    redoutput.Clear;
+    redoutput.Lines.Add('How to log in:');
+    redoutput.Lines.Add('Enter your username and password on the login screen.');
+  end;
+
+  1: begin
+    redoutput.Clear;
+    redoutput.Lines.Add('Resetting your password:');
+    redoutput.Lines.Add('If you forget your password, contact your system administrator to have it reset.');
+    redoutput.Lines.Add('There is currently no self-service password recovery feature.');
+  end;
+
+  2: begin
+    redoutput.Clear;
+    redoutput.Lines.Add('Understanding runway status:');
+    redoutput.Lines.Add('"Available" means the runway is clear and ready for use.');
+    redoutput.Lines.Add('"Occupied" means a plane is landing, taking off, or the runway is temporarily closed.');
+  end;
+
+  3: begin
+    redoutput.Clear;
+    redoutput.Lines.Add('Reporting a bug or issue:');
+    redoutput.Lines.Add('Click the "Report a Problem" button on the Support page.');
+    redoutput.Lines.Add('Provide a short description of the issue so it can be fixed quickly.');
+  end;
+
+  4: begin
+    redoutput.Clear;
+    redoutput.Lines.Add('Navigating through the app:');
+    redoutput.Lines.Add('Use the buttons or menu on the home screen to go to different sections.');
+    redoutput.Lines.Add('Admins have extra options like user management and activity logs.');
+  end;
+
+end;
+
+
+
+
+
+
+end;
+
+
+
+end.
+
