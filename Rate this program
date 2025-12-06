@@ -1,0 +1,28 @@
+unit Ratings_u;
+
+interface
+uses
+  Dialogs; // chat gpt helped me with this
+
+
+procedure AskToRateProgram;
+
+implementation
+
+procedure AskToRateProgram;
+var
+  UserResponse: Integer;
+begin
+UserResponse := MessageDlg('Would you like to rate this program?', mtConfirmation, [mbYes, mbNo], 0);
+  if UserResponse = 6 then
+  begin
+    ShowMessage('Thanks for your feedback!');
+  end
+  else
+  begin
+    ShowMessage('No worries! Have a great day!');
+  end;
+end;
+
+end.
+
