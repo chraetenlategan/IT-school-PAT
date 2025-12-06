@@ -1,0 +1,76 @@
+unit Home_screen;
+
+interface
+
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, Buttons, ExtCtrls, jpeg, pngimage,unit2_u,unit3_u,unit4_u,unit_database,cls_ratings_u;
+
+type
+  TForm1 = class(TForm)
+    pnl_home_page: TPanel;
+    img_login: TImage;
+    img_help: TImage;
+    img_conctact: TImage;
+    img_exit: TImage;
+    img_background: TImage;
+    procedure img_conctactClick(Sender: TObject);
+    procedure img_loginClick(Sender: TObject);
+    procedure img_helpClick(Sender: TObject);
+    procedure img_exitClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form1: TForm1;
+
+implementation
+
+
+
+{$R *.dfm}
+
+procedure TForm1.img_loginClick(Sender: TObject);
+begin
+// this butten takes you to the login screen
+
+//shows the login form
+form3.show;
+//hides the current form
+form1.Hide;
+end;
+
+procedure TForm1.img_helpClick(Sender: TObject);
+begin
+// this butten takes yo to Help form
+
+//shows the help screen
+form4.Show;
+//hides the current form
+form1.Hide;
+end;
+
+procedure TForm1.img_conctactClick(Sender: TObject);
+begin
+//this butten takes you to Contact Support form
+
+//hides my current form
+form1.Hide;
+//This is my info form
+form2.Show;
+end;
+
+procedure TForm1.img_exitClick(Sender: TObject);
+begin
+// the program can not be rated becasue it has not been used
+Application.Terminate;
+
+end;
+
+end.
+
+
