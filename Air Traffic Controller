@@ -1,0 +1,397 @@
+unit Unit5_u;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ExtCtrls, pngimage, unit_database, Grids, DBGrids, StdCtrls, ComCtrls,
+  DBCtrls,cls_ratings_u,math;
+
+type
+  TForm5 = class(TForm)
+    pnl_act: TPanel;
+    img_exit: TImage;
+    img_home: TImage;
+    img_background: TImage;
+    red_display: TRichEdit;
+    btn_insert: TButton;
+    btn_edit: TButton;
+    btn_logout: TButton;
+    pnl_insert: TPanel;
+    edt_insert_ID: TEdit;
+    dtm_insert: TDateTimePicker;
+    btn_insert_publish: TButton;
+    btn_insert_test: TButton;
+    pnl_edit: TPanel;
+    edt_edit_flightID: TEdit;
+    dtp_edit: TDateTimePicker;
+    lbl_edit: TLabel;
+    btn_edit_test: TButton;
+    btn_edit_publish: TButton;
+    lbl_insert: TLabel;
+    btn_availible: TButton;
+    btn_edit_generate: TButton;
+    cmb_insert_rw: TComboBox;
+    cmb_insert_airline: TComboBox;
+    cmb_insert_location: TComboBox;
+    cmb_edit_runway: TComboBox;
+    cmb_edit_airline: TComboBox;
+    cmb_edit_location: TComboBox;
+    btn_delete: TButton;
+    pnl_delete: TPanel;
+    lbl_delete: TLabel;
+    edt_delete: TEdit;
+    btn_delete_info: TButton;
+    pnl_runway: TPanel;
+    lbl_update_runway: TLabel;
+    cmb_runway: TComboBox;
+    btn_av: TButton;
+    btn_unav: TButton;
+    procedure btn_exitClick(Sender: TObject);
+    procedure img_exitClick(Sender: TObject);
+    procedure btn_insertClick(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+    procedure btn_insert_publishClick(Sender: TObject);
+    procedure btn_insert_testClick(Sender: TObject);
+    procedure btn_editClick(Sender: TObject);
+    procedure edt_insert_IDClick(Sender: TObject);
+    procedure btn_edit_testClick(Sender: TObject);
+    procedure btn_edit_generateClick(Sender: TObject);
+    procedure btn_logoutClick(Sender: TObject);
+    procedure pnl_deleteClick(Sender: TObject);
+    procedure btn_delete_infoClick(Sender: TObject);
+    procedure btn_deleteClick(Sender: TObject);
+    procedure btn_availibleClick(Sender: TObject);
+    procedure btn_avClick(Sender: TObject);
+    procedure btn_unavClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form5: TForm5;
+
+
+implementation
+uses
+Home_screen;
+
+{$R *.dfm}
+
+procedure TForm5.btn_exitClick(Sender: TObject);
+begin
+//close the program
+application.Terminate;
+end;
+
+procedure TForm5.btn_insertClick(Sender: TObject);
+begin
+pnl_insert.Visible:= true;
+red_display.Lines.Add('Please note !!!!');
+red_display.Lines.Add('A published flight ID can not be changed');
+edt_edit_flightID.Text := 'Enter Flight ID';
+pnl_edit.Visible := false;
+pnl_delete.Visible := false;
+end;
+
+procedure TForm5.btn_edit_generateClick(Sender: TObject);
+var
+generate_ID,Srandom : string;
+irandom1,irandom2,irandom3 :integer;
+begin
+generate_ID := '';
+//create 3 random numbers for string build
+irandom1 := randomrange(0,10);
+irandom2 := randomrange(0,10);
+irandom3 := randomrange(0,10);
+Srandom := inttostr(irandom1) + inttostr(irandom3)+inttostr(irandom3);
+generate_ID := cmb_edit_runway.Text[1]+cmb_edit_location.Text[1]+srandom;
+edt_insert_ID.Text := generate_ID;
+
+
+end;
+
+procedure TForm5.btn_availibleClick(Sender: TObject);
+begin
+pnl_runway.Visible:= true;
+pnl_insert.Visible := false;
+pnl_delete.Visible := false;
+pnl_insert.Visible := false;
+end;
+
+procedure TForm5.btn_avClick(Sender: TObject);
+begin
+with data_module do
+begin
+  tbl_runway.Open;
+  tbl_runway.First;
+
+while not tbl_runway.Eof  do
+if tbl_runway['RunwayID'] = cmb_runway.Text then
+begin
+  tbl_runway.Edit;
+  tbl_runway['Status'] := 'Availible';
+  tbl_runway.Post;
+end
+else
+tbl_runway.Next;
+end;
+end;
+
+procedure TForm5.btn_deleteClick(Sender: TObject);
+begin
+pnl_delete.Visible := true;
+pnl_insert.Visible := false;
+pnl_edit.Visible := false;
+red_display.Clear;
+end;
+
+procedure TForm5.btn_delete_infoClick(Sender: TObject);
+var
+sID : string;
+Bfound : boolean;
+begin
+red_display.Clear;
+sID := edt_delete.Text;
+Bfound := false;
+with data_module do
+  begin
+    tbl_flights.Open;
+    tbl_flights.First;
+    while (not tbl_flights.eof) and (bfound = false) do
+      begin
+        if SID = tbl_flights['flight_ID'] then
+          begin
+            bfound := true;
+            tbl_flights.Delete;
+            red_display.Lines.Add(SID+' has been deleted sucsesfully')
+          end
+        else
+        tbl_flights.Next;
+      end;
+
+      if bfound = false then
+      begin
+      red_display.Clear;
+      red_display.Lines.Add('No ID has been found');
+      edt_delete.Color := clred;
+      edt_delete.Text := '';
+      edt_delete.Font.Color := clwhite;
+      end;
+end;
+
+end;
+
+procedure TForm5.btn_editClick(Sender: TObject);
+begin
+pnl_edit.Visible := true;
+pnl_insert.Visible := false;
+pnl_delete.Visible := false;
+red_display.clear;
+end;
+
+procedure TForm5.btn_logoutClick(Sender: TObject);
+var
+  tf: TextFile;
+  sUsername, sLine: string;
+  ipos,ipos2: Integer;
+begin
+  AssignFile(tf, 'login.txt');
+  Reset(tf);
+  sUsername := '';
+  while not Eof(tf) do
+  begin
+    ReadLn(tf, sLine);
+    if Trim(sLine) <> '' then
+    begin
+      ipos := Pos('*', sLine);
+      ipos2 := pos('^',sline);
+      if ipos > 0 then
+        sUsername := Copy(sLine, ipos2+1, ipos - 1);
+    end;
+  end;
+  CloseFile(tf);
+  AssignFile(tf, 'login.txt');
+  Append(tf);
+  WriteLn(tf, 'Logout^' + sUsername + '*' + DateToStr(Date)+ timetostr(time));
+  CloseFile(tf);
+
+  showmessage(sUsername + ' has sucsesfully logged out');
+//  form1.Show;
+//  form5.Hide;
+
+end;
+
+procedure TForm5.btn_unavClick(Sender: TObject);
+begin
+with data_module do
+begin
+  tbl_runway.Open;
+  tbl_runway.First;
+
+while not tbl_runway.Eof  do
+if tbl_runway['RunwayID'] = cmb_runway.Text then
+begin
+  tbl_runway.Edit;
+  tbl_runway['Status'] := 'UnAvailible';
+  tbl_runway.Post;
+end
+else
+tbl_runway.Next;
+end;
+end;
+
+procedure TForm5.btn_edit_testClick(Sender: TObject);
+var
+check : boolean;
+begin
+//initialize
+check := false;
+//checks if the flight ID exists
+
+with data_module do
+begin
+  tbl_flights.Open;
+  tbl_flights.First;
+
+  while not (tbl_flights.Eof) and (check = false) do
+    begin
+    if tbl_flights['Flight_ID'] = (edt_edit_flightID.Text) then
+    begin
+    check := true;
+    btn_edit_publish.Enabled := true;
+    end;
+
+      tbl_flights.Next;
+    end;
+
+
+if check = false then
+begin
+edt_edit_flightID.Color := clred;
+edt_edit_flightID.Font.Color := clwhite;
+end;
+
+end;
+
+
+
+end;
+
+procedure TForm5.btn_insert_publishClick(Sender: TObject);
+begin
+with data_module do
+begin
+  tbl_flights.Open;
+  tbl_flights.Append;
+  tbl_flights['Flight_ID'] := edt_insert_ID.Text;
+  tbl_flights['Runway_ID'] := cmb_insert_rw.Text;
+  tbl_flights['Time']:= dtm_insert.Date;
+  tbl_flights['Location']:= cmb_insert_location.Text;
+  tbl_flights['Airline']:= cmb_insert_airline.Text;
+  tbl_flights.Post;
+
+end;
+end;
+
+procedure TForm5.btn_insert_testClick(Sender: TObject);
+var
+check: boolean;
+begin
+//validate
+check:= false;
+//check if the ID exists
+with data_module do
+begin
+tbl_flights.Open;
+tbl_flights.First;
+  while not (tbl_flights.eof) and (check = false) do
+    begin
+      if (edt_insert_ID.Text) = tbl_flights['Flight_ID'] then
+        begin // if ID exists
+          edt_insert_ID.Color := clred;
+          edt_insert_ID.Font.color := clwhite;
+          edt_insert_ID.Clear;
+          check := true;
+          red_display.Lines.Add('This ID already Exists, please choose another one')
+        end//if ID exists
+      else
+      tbl_flights.Next;
+    end;
+
+
+//checks that the date is not in the future
+if date > dtm_insert.Date then
+begin
+  dtm_insert.Color := clred;
+  dtm_insert.Color := clwhite;
+  red_display.Lines.Add('Date must be in the future');
+  red_display.Lines.Add('A plane can not fly in negative time');
+end;
+
+
+if check = false then
+begin
+btn_insert_publish.Enabled := true;
+btn_insert_publish.Font.Style := [fsbold];
+btn_insert_publish.Font.Color := clgreen;
+red_display.Lines.Add('All the Information is correct, press the publish button to add Flight')
+end;
+
+
+end;
+end;
+
+
+procedure TForm5.edt_insert_IDClick(Sender: TObject);
+begin
+edt_insert_ID.clear;
+end;
+
+procedure TForm5.FormActivate(Sender: TObject);
+begin
+pnl_insert.Visible := false;
+pnl_edit.Visible := false;
+btn_insert_publish.Enabled := false;
+pnl_delete.Visible := false;
+red_display.Clear;
+pnl_runway.Visible := false;
+end;
+
+procedure TForm5.img_exitClick(Sender: TObject);
+var
+tf : textfile;
+sUsername,sline : string;
+ipos : integer;
+begin
+// ask the user to rate the program
+// a user has logged in, so there is a user
+
+// first has to find the user through text file
+assignfile(tf,'login.txt');
+reset(tf);
+sUsername := '';
+while not eof(tf) do
+begin
+  ReadLn(tf, sline);
+  // got this from chat gpt
+  //clever way of finding the last line of a text file
+    if Trim(sline) <> '' then
+      begin
+        ipos := pos('*',sline);
+        sUsername := copy(sline,1,ipos-1);
+      end;
+end;
+
+TRating.RateAndExit(Susername);
+end;
+
+procedure TForm5.pnl_deleteClick(Sender: TObject);
+begin
+red_display.Clear;
+end;
+
+end.
+
